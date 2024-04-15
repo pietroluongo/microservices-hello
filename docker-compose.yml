@@ -1,0 +1,54 @@
+version: "3"
+services:
+  product-service:
+    build:
+      context: product-service
+    restart: unless-stopped
+    ports:
+      - 3001:3001
+    depends_on:
+      - rabbitmq
+      - mongo
+    volumes:
+      - ./product-service:/usr/src/app
+    networks:
+      - microtutorial
+
+  order-service:
+    build:
+      context: order-service
+    restart: unless-stopped
+    ports:
+      - 3002:3002
+    depends_on:
+      - rabbitmq
+      - mongo
+    volumes:
+      - ./order-service:/usr/src/app
+    networks:
+      - microtutorial
+
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    # environment:
+    # MONGO_INITDB_ROOT_USERNAME: root
+    # MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - microtutorial
+
+  rabbitmq:
+    image: library/rabbitmq:latest
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    ports:
+      - "5672:5672"
+    networks:
+      - microtutorial
+
+networks:
+  microtutorial:
+    driver: bridge
